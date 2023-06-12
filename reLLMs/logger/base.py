@@ -184,16 +184,13 @@ class BaseLogger(object):
         if isinstance(val, (np.ndarray, torch.Tensor)):
             val = val.item()
             val = round(val, DECIMAL)
-            self._tabular.append((self._tabular_prefix_str + str(key), val))
-        elif isinstance(val, str):
-            self._tabular.append((self._tabular_prefix_str + str(key), val.strip()))
-        else:
-            return
+        self._tabular.append((self._tabular_prefix_str + str(key), val))
 
     def record_dict(self, d, prefix=None):
         if prefix is not None:
             self.push_tabular_prefix(prefix)
         for k, v in d.items():
+            print(k)
             self.record_tabular(k, v)
         if prefix is not None:
             self.pop_tabular_prefix()

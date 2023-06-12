@@ -126,15 +126,15 @@ class CEvalTask(BaseTask):
         analysis = {}
         ans_model = self.extract(result.text)
         ans_target = datum['answer']
-        judge = True if ans_model == ans_target else False
+        judge = 1 if ans_model == ans_target else 0
         analysis = {
             'id': datum['id'],
             'judge': judge,
-            'question': question,
+            'question': question.replace('\n', ' '),
             'answer_target': ans_target,
             'answer_model': ans_model,
-            'explanation': datum['explanation'],
-            'completion': result.text,
+            'explanation': datum['explanation'].replace('\n', ' '),
+            'completion': result.text.replace('\n', ' '),
             **result.meta,
         }
         return analysis

@@ -47,13 +47,12 @@ class LLMEvaluator:
     def run_evaluate_loop(self):
         epoch = 0
         for datum in tqdm(self.task.data['test']):
-            epoch += 1
             analysis = self.evaluate(self.model, self.task, datum)
-            self.perform_logging(epoch, analysis)
+            epoch += 1
+            self.perform_logging(analysis)
             if epoch == 2: break
 
-    def perform_logging(self, epoch: int, analysis: Dict):
+    def perform_logging(self, analysis: Dict):
 
-        self.logger.record_tabular("Epoch", epoch)
         self.logger.record_dict(analysis)
         self.logger.dump_tabular(with_prefix=False, with_timestamp=False)

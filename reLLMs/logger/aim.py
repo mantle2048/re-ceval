@@ -76,21 +76,11 @@ class AimLogger(BaseLogger):
 
         tabular_dict = dict(self._tabular)
 
-        epoch_mode = False
-        if 'Epoch' in tabular_dict.keys():
-            epoch = tabular_dict.pop('Epoch')
-            epoch_mode = True
+        # assert  'Epoch' in tabular_dict.keys()
+        # epoch = tabular_dict.pop('Epoch')
 
-        step_mode = False
-        if 'TotalEnvInteracts' in tabular_dict.keys():
-            step_cnt = int(tabular_dict.pop('TotalEnvInteracts'))
-            step_mode = True
-
-        for key, value in tabular_dict.items():
-            if epoch_mode:
-                self.log_scalar(value, key, epoch, context={'mode': 'Epoch'})
-            if step_mode:
-                self.log_scalar(value, key, step_cnt, context={'mode': 'Step'})
+        # for key, value in tabular_dict.items():
+        #     self.log_scalar(value, key, epoch)
 
         super().dump_tabular(*args, **kwargs)
 
