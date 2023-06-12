@@ -1,0 +1,8 @@
+defaults:
+  - model: openai
+  - task: ceval
+  - logger: aim
+  - hydra: default
+  - path: default
+  - evaluator: default
+  - _self_ 

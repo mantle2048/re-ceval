@@ -1,0 +1,7 @@
+# @package _global_
+
+no_gpu: True
+
+which_gpu: 0
+
+seed: 0

@@ -1,0 +1,13 @@
+_target_: reLLMs.logger.logger_util.setup_logger
+
+exp_name: ${model.name}_${task.name}
+
+seed: ${seed}
+
+snapshot_mode: last
+
+base_log_dir: ${path.log_dir}
+
+prefix: null
+
+description: null
