@@ -4,6 +4,7 @@ from datasets import load_dataset
 
 from .base import BaseTask
 from reLLMs.util.result import Result
+from reLLMs.util.text_util import find_words_last_idx
 
 import re
 import warnings
@@ -92,13 +93,7 @@ class CEvalTask(BaseTask):
         pattern = [
             r"^选([A-D])",
             r"^选项([A-D])",
-            r"即选项([A-D])",
-            r"选([A-D])",
-            r"选项([A-D])(?!.*不)正确",
-            r"选项([A-D]).{0,20}是正确",
-            r"选项([A-D]).{0,20}主要目的",
-            r"选项([A-D]).{0,20}符合要求",
-            r"选项([A-D]).{0,20}为正确答案",
+            r"答案\s?选?项?\s?为?([A-D])",
             r"答案是\s?选?项?\s?([A-D])",
             r"答案为\s?选?项?\s?([A-D])",
             r"答案应为\s?选?项?\s?([A-D])",
@@ -121,12 +116,11 @@ class CEvalTask(BaseTask):
         for p in pattern:
             ans_list += re.findall(p, ans)
         if len(set(ans_list)) == 0 :
-            letter_pattern = r"([A-D])\."
-            patterns = re.findall(letter_pattern, ans)
-            if len(patterns) == 1:
-                ans_list += patterns
-        if len(set(ans_list)) == 3:
-            ans_list = [x for x in self.choices if x not in set(ans_list)]
+            letter_pattern = r"([A-D])"
+            conclusion_words = ['因此', '综上', '所以']
+            idx = find_words_last_idx(ans, conclusion_words)
+            patterns = re.findall(letter_pattern, ans[idx:])
+            ans_list += patterns
         if len(set(ans_list)) > 1:
             warnings.warn("Model outputs multiple choices, only return the first one.")
         try:
