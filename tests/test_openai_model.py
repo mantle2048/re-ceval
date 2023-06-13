@@ -1,5 +1,4 @@
 import pytest
-import openai
 import asyncio
 
 
@@ -26,7 +25,7 @@ class TestOpenAIModel:
         'explanation': '1. 首先，资源子网是指提供共享资源的网络，如打印机、文件服务器等。\r\n2. 其次，我们需要了解选项中设备的功能 。网桥、交换机和路由器的主要功能是实现不同网络之间的通信和数据传输，是通信子网设备。而计算机软件可以提供共享资源的功能。'
     }
 
-    def est_compute_cost(self, model):
+    def test_compute_cost(self, model):
         prompt_tokens = 2000
         completion_tokens = 4000
         cost = model.compute_cost(prompt_tokens, completion_tokens)
@@ -35,19 +34,19 @@ class TestOpenAIModel:
         elif model.name == 'gpt-4':
             assert 0.3 == pytest.approx(cost, 1e-6)
 
-    def est_count_tokens(self, model):
+    def test_count_tokens(self, model):
         content = "Follow the given examples and answer the question."
         count = model.count_tokens(content)
         assert count == 9
 
-    def est_format(self, model, task):
+    def test_format(self, model, task):
         prompt = task.format(self.datum)
         if task.prompt_type == 'vanilla':
             assert prompt == '下列设备属于资源子网的是____。\nA. 计算机软件\nB. 网桥\nC. 交换机\nD. 路由器\n答案：'
         elif task.prompt_type == 'cot':
             assert prompt == '下列设备属于资源子网的是____。\nA. 计算机软件\nB. 网桥\nC. 交换机\nD. 路由器\n答案：让我们一步一步思考，\n'
 
-    def est_complete(self, model, task):
+    def test_complete(self, model, task):
         prompt = task.prompt + task.format(self.datum)
         result = model.complete(
             prompt,
@@ -58,7 +57,7 @@ class TestOpenAIModel:
         print(answer)
         assert answer in ('A', 'B', 'C', 'D', None)
 
-    def est_acomplete(self, model, task):
+    def test_acomplete(self, model, task):
         prompt = task.prompt + task.format(self.datum)
         coroutine = model.acomplete(prompt, system_message=task.system_message)
         result = asyncio.run(coroutine)

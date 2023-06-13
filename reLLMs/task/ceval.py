@@ -92,30 +92,43 @@ class CEvalTask(BaseTask):
         pattern = [
             r"^选([A-D])",
             r"^选项([A-D])",
+            r"即选项([A-D])",
+            r"选([A-D])",
+            r"选项([A-D])(?!.*不)正确",
+            r"选项([A-D]).{0,20}是正确",
+            r"选项([A-D]).{0,20}主要目的",
+            r"选项([A-D]).{0,20}符合要求",
+            r"选项([A-D]).{0,20}为正确答案",
             r"答案是\s?选?项?\s?([A-D])",
             r"答案为\s?选?项?\s?([A-D])",
             r"答案应为\s?选?项?\s?([A-D])",
             r"答案选\s?选?项?\s?([A-D])",
-            r"答案是:\s?选?项?\s?([A-D])",
-            r"答案应该是:\s?选?项?\s?([A-D])",
+            r"答案是:?\s?选?项?\s?([A-D])",
+            r"答案应该是:?\s?选?项?\s?([A-D])",
             r"正确的一项是\s?([A-D])",
+            r"正确答案是:?\s?([A-D])",
             r"答案为:\s?选?项?\s?([A-D])",
             r"答案应为:\s?选?项?\s?([A-D])",
             r"答案:\s?选?项?\s?([A-D])",
-            r"答案是：\s?选?项?\s?([A-D])",
-            r"答案应该是：\s?选?项?\s?([A-D])",
-            r"答案为：\s?选?项?\s?([A-D])",
-            r"答案应为：\s?选?项?\s?([A-D])",
+            r"答案是：?\s?选?项?\s?([A-D])",
+            r"答案应该是：?\s?选?项?\s?([A-D])",
+            r"答案为：?\s?选?项?\s?([A-D])",
+            r"答案应为：?\s?选?项?\s?([A-D])",
             r"答案：\s?选?项?\s?([A-D])",
         ]
         # if answer line only consists a choice
-        if len(ans) == 1 and ans[0] in self.choices:
-            return ans
         ans_list = []
         for p in pattern:
             ans_list += re.findall(p, ans)
+        if len(set(ans_list)) == 0 :
+            letter_pattern = r"([A-D])\."
+            patterns = re.findall(letter_pattern, ans)
+            if len(patterns) == 1:
+                ans_list += patterns
+        if len(set(ans_list)) == 3:
+            ans_list = [x for x in self.choices if x not in set(ans_list)]
         if len(set(ans_list)) > 1:
-            warnings.warn("Model outputs multiple choices, only return the last one.")
+            warnings.warn("Model outputs multiple choices, only return the first one.")
         try:
             return ans_list[-1]
         except IndexError:
@@ -125,7 +138,7 @@ class CEvalTask(BaseTask):
     def analyse(self, datum: Dict, question: str, result: Result) -> Dict:
         analysis = {}
         ans_model, ans_target = self.extract(result.text), datum['answer']
-        evaluation = 1 if ans_model == ans_target else 0
+        evaluation = 1 if (ans_model == ans_target) and (ans_model is not None) else 0
         analysis = {
             'id': datum['id'],
             'evaluation': evaluation,
