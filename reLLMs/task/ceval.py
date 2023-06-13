@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from datasets.dataset_dict import DatasetDict
 from datasets import load_dataset
 
@@ -69,7 +69,7 @@ class CEvalTask(BaseTask):
         self,
         name: str,
         prompt_type: str = 'vanilla',
-        few_shot: bool = False
+        few_shot: bool = False,
     ):
         self.choices = ['A', 'B', 'C', 'D']
         self.system_message = \
@@ -124,12 +124,11 @@ class CEvalTask(BaseTask):
 
     def analyse(self, datum: Dict, question: str, result: Result) -> Dict:
         analysis = {}
-        ans_model = self.extract(result.text)
-        ans_target = datum['answer']
-        judge = 1 if ans_model == ans_target else 0
+        ans_model, ans_target = self.extract(result.text), datum['answer']
+        evaluation = 1 if ans_model == ans_target else 0
         analysis = {
             'id': datum['id'],
-            'judge': judge,
+            'evaluation': evaluation,
             'question': question.replace('\n', ' '),
             'answer_target': ans_target,
             'answer_model': ans_model,
@@ -142,10 +141,11 @@ class CEvalTask(BaseTask):
     def _load_dataset(self, name: str) -> DatasetDict:
         return load_dataset("ceval/ceval-exam", name=name)
 
-    def _create_prompt(self, prompt_type: str) -> str:
+    def _create_prompt(self, few_shot: bool) -> str:
         prompt = self.system_message + "\n\n"
-        for datum in self.data['dev']:
-            prompt += self.format(datum, include_ans=True)
+        if few_shot:
+            for datum in self.data['dev']:
+                prompt += self.format(datum, include_ans=True)
         return prompt
 
     @property

@@ -1,5 +1,5 @@
 from datasets.dataset_dict import DatasetDict
-from typing import Dict
+from typing import Dict, List
 
 from reLLMs.util.result import Result
 
@@ -29,7 +29,7 @@ class BaseTask:
         self.few_shot = few_shot
 
         self.data = self._load_dataset(name=name)
-        self.prompt = self._create_prompt(prompt_type=prompt_type)
+        self.prompt = self._create_prompt(few_shot=few_shot)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.name}')"

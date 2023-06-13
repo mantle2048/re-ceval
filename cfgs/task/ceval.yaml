@@ -4,4 +4,4 @@ name: computer_network
 
 prompt_type: cot # cot | vanilla
 
-few_shot: True
+few_shot: False

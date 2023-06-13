@@ -1,6 +1,9 @@
-from tqdm import tqdm
 from omegaconf import DictConfig
 from typing import Dict
+from tabulate import tabulate
+
+import numpy as np
+import time
 
 from reLLMs.util import pytorch_util as ptu
 from reLLMs.model.base import BaseModel
@@ -20,6 +23,8 @@ class LLMEvaluator:
         self.model = model
         self.task = task
         self.logger = logger
+
+        self.analyses = []
 
         # Init GPU
         ptu.init_gpu(
@@ -45,14 +50,39 @@ class LLMEvaluator:
         return analysis
 
     def run_evaluate_loop(self):
-        epoch = 0
-        for datum in tqdm(self.task.data['test']):
+        self.start_time = time.time()
+        for epoch, datum in enumerate(self.task.data['test']):
             analysis = self.evaluate(self.model, self.task, datum)
-            epoch += 1
             self.perform_logging(analysis)
-            if epoch == 2: break
+            self.analyses.append(analysis)
+            summary = self.perform_summary(epoch)
+        self.logger.log(summary, with_prefix=False)
 
     def perform_logging(self, analysis: Dict):
 
         self.logger.record_dict(analysis)
         self.logger.dump_tabular(with_prefix=False, with_timestamp=False)
+
+    def perform_summary(self, epoch: int):
+
+        total_tokens = np.sum([a["tokens"] for a in self.analyses])
+        total_cost = np.sum([a["cost"] for a in self.analyses])
+        total_correct = np.sum([a["evaluation"] for a in self.analyses])
+        average_latency = np.mean([a["latency"] for a in self.analyses])
+        aggregated_speed = total_tokens / np.sum([a["latency"] for a in self.analyses])
+        accuracy = total_correct / len(self.analyses)
+
+        summary = [
+            ['Model', str(self.model)],
+            ['Task', str(self.task)],
+            ['Progress', f"{epoch}/{len(self.task.data['test'])}"],
+            ['Accuracy', accuracy],
+            ['Time', (time.time() - self.start_time) / 60],
+            ['Total Tokens', total_tokens],
+            ['Total Cost', total_cost],
+            ['Average Latency', average_latency],
+            ['Aggregated Speed', aggregated_speed],
+
+        ]
+        print("\033c" + tabulate(summary))
+        return tabulate(summary)

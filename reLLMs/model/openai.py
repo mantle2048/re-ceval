@@ -5,6 +5,7 @@ import openai
 
 from typing import Optional, List, Dict
 from aiohttp import ClientSession
+from tenacity import retry, wait_chain, wait_fixed
 
 from .base import BaseModel
 from reLLMs.util.result import Result
@@ -87,6 +88,9 @@ class OpenAIModel(BaseModel):
             }
         return model_inputs
 
+    @retry(wait=wait_chain(*[wait_fixed(3) for i in range(3)] +
+                        [wait_fixed(5) for i in range(2)] +
+                        [wait_fixed(10)]))
     def complete(
         self,
         prompt: str,

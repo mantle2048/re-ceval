@@ -18,7 +18,7 @@ import pickle
 import errno
 import torch
 
-from .tabulate import tabulate
+from tabulate import tabulate
 from omegaconf import DictConfig, OmegaConf
 
 DECIMAL=6
@@ -175,10 +175,10 @@ class BaseLogger(object):
         if not self._log_tabular_only:
             # Also log to stdout
             print(out, end=end)
-            for fd in list(self._text_fds.values()):
-                fd.write(out + end)
-                fd.flush()
-            sys.stdout.flush()
+        for fd in list(self._text_fds.values()):
+            fd.write(out + end)
+            fd.flush()
+        sys.stdout.flush()
 
     def record_tabular(self, key, val):
         if isinstance(val, (np.ndarray, torch.Tensor)):
@@ -190,7 +190,6 @@ class BaseLogger(object):
         if prefix is not None:
             self.push_tabular_prefix(prefix)
         for k, v in d.items():
-            print(k)
             self.record_tabular(k, v)
         if prefix is not None:
             self.pop_tabular_prefix()
@@ -277,12 +276,9 @@ class BaseLogger(object):
         wh = kwargs.pop("write_header", None)
 
         if len(self._tabular) > 0:
-            if self._log_tabular_only:
-                self.table_printer.print_tabular(self._tabular)
-            else:
-                # print tabulate
-                for line in tabulate(self._tabular).split('\n'):
-                    self.log(line, *args, **kwargs)
+            # print tabulate
+            for line in tabulate(self._tabular).split('\n'):
+                self.log(line, *args, **kwargs)
             tabular_dict = dict(self._tabular)
             # Also write to the csv files
             # This assumes that the keys in each iteration won't change!

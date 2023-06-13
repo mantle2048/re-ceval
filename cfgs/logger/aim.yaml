@@ -8,6 +8,9 @@ snapshot_mode: last
 
 base_log_dir: ${path.log_dir}
 
+log_tabular_only: True
+
 prefix: null
 
 description: null
+
