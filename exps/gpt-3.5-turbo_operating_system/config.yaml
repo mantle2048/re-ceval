@@ -8,7 +8,7 @@ task:
   _target_: reLLMs.task.ceval.CEvalTask
   name: operating_system
   prompt_type: cot
-  few_shot: false
+  few_shot: true
 logger:
   _target_: reLLMs.logger.logger_util.setup_logger
   exp_name: ${model.name}_${task.name}
