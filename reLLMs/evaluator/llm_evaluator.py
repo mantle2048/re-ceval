@@ -75,7 +75,7 @@ class LLMEvaluator:
         summary = [
             ['Model', str(self.model)],
             ['Task', str(self.task)],
-            ['Progress', f"{epoch}/{len(self.task.data['test'])}"],
+            ['Progress', f"{epoch+1}/{len(self.task.data['test'])}"],
             ['Accuracy', accuracy],
             ['Time', (time.time() - self.start_time) / 60],
             ['Total Tokens', total_tokens],

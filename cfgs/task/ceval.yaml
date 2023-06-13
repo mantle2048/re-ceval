@@ -1,6 +1,6 @@
 _target_: reLLMs.task.ceval.CEvalTask
 
-name: computer_network
+name: operating_system # computer_network
 
 prompt_type: cot # cot | vanilla
 
