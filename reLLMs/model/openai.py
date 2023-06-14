@@ -14,9 +14,10 @@ from reLLMs.util.result import Result
 class OpenAIModel(BaseModel):
     # cost is per million tokens
     MODEL_INFO = {
-        "gpt-3.5-turbo": {"prompt": 2.0, "completion": 2.0, "token_limit": 4096},
+        "gpt-3.5-turbo": {"prompt": 1.5, "completion": 2.0, "token_limit": 4096},
+        "gpt-3.5-turbo-16k": {"prompt": 3.0, "completion": 4.0, "token_limit": 16_384},
         "gpt-4": {"prompt": 30.0, "completion": 60.0, "token_limit": 8192},
-        "text-davinci-003": {"prompt": 20.0, "completion": 20.0, "token_limit": 4096},
+        "text-davinci-003": {"prompt": 20.0, "completion": 20.0, "token_limit": 4097},
     }
 
     def __init__(
