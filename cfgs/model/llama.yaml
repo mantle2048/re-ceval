@@ -1,0 +1,9 @@
+_target_: reLLMs.model.llama.LLaMAModel
+
+ckpt_dir: CKPT_DIR
+
+name: llama-13b-hf
+
+temperature:  0
+
+max_tokens: 160

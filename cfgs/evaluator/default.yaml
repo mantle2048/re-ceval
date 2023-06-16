@@ -2,6 +2,6 @@
 
 no_gpu: True
 
-which_gpu: 0
+which_gpu: 7
 
 seed: 0

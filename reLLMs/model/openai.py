@@ -110,8 +110,6 @@ class OpenAIModel(BaseModel):
             prompt=prompt,
             history=history,
             system_message=system_message,
-            temperature=self.temperature,
-            max_tokens=self.max_tokens,
             **kwargs,
         )
 
