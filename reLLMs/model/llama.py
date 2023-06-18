@@ -69,9 +69,11 @@ class LLaMAModel(BaseModel):
             prompt=prompt,
             system_message=system_message
         )
+        tokens_prompt = model_inputs['input_ids'].shape[-1]
         with self.track_latency():
             generate_ids = self.model.generate(**model_inputs)
 
+        generate_ids = generate_ids[:, tokens_prompt:]
         completion = self.tokenizer.batch_decode(
             generate_ids,
             skip_special_tokens=True,
@@ -80,7 +82,7 @@ class LLaMAModel(BaseModel):
 
         meta = {
             "latency": self.latency,
-            "tokens_prompt": model_inputs['input_ids'].shape[0],
+            "tokens_prompt": tokens_prompt,
         }
         return Result(
             text=completion,

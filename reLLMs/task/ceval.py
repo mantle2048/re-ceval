@@ -112,6 +112,8 @@ class CEvalTask(BaseTask):
             r"答案：\s?选?项?\s?([A-D])",
         ]
         # if answer line only consists a choice
+        if ans in self.choices:
+            return ans
         ans_list = []
         for p in pattern:
             ans_list += re.findall(p, ans)
