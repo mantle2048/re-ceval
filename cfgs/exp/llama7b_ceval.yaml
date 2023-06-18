@@ -1,0 +1,25 @@
+# @package _global_
+
+defaults:
+  - override /model: llama
+  - override /task: ceval
+  - _self_  
+
+model:
+
+  name: llama-7b-hf
+
+  temperature:  0
+
+  max_new_tokens: 1
+
+task:
+
+  few_shot: True
+
+  prompt_type: vanilla # cot | vanilla
+
+
+no_gpu: False
+
+which_gpu: 0

@@ -119,7 +119,6 @@ class CEvalTask(BaseTask):
             letter_pattern = r"([A-D])\."
             conclusion_words = ['因此', '综上', '所以', '结论']
             idx = find_words_last_idx(ans, conclusion_words)
-            import ipdb; ipdb.set_trace()
             if idx != -1:
                 patterns = re.findall(letter_pattern, ans[idx:])
             else:

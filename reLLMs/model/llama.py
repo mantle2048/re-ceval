@@ -10,13 +10,13 @@ import reLLMs.util.pytorch_util as ptu
 from .base import BaseModel
 from reLLMs.util.result import Result
 
-ptu.device = torch.device("cuda:0")
-
 
 class LLaMAModel(BaseModel):
     # cost is per million tokens
     MODEL_INFO = {
-        "llama-7b": {"prompt": 0.0, "completion": 0.0, "token_limit": 4096},
+        "llama-7b-hf": {"prompt": 0.0, "completion": 0.0, "token_limit": 4096},
+        "llama-13b-hf": {"prompt": 0.0, "completion": 0.0, "token_limit": 4096},
+        "llama-65b-hf": {"prompt": 0.0, "completion": 0.0, "token_limit": 4096},
     }
 
     def __init__(
@@ -24,7 +24,7 @@ class LLaMAModel(BaseModel):
         ckpt_dir: str,
         name: str = None,
         temperature: float = 0,
-        max_tokens: int = 20,
+        max_new_tokens: int = 20,
     ):
         if name is None:
             name = list(self.MODEL_INFO.keys())[0]
@@ -33,14 +33,14 @@ class LLaMAModel(BaseModel):
         self.ckpt_dir = os.getenv(ckpt_dir)
         self.name = name
         self.temperature = temperature
-        self.max_tokens = max_tokens
+        self.max_new_tokens = max_new_tokens
 
         model_path = Path(self.ckpt_dir) / self.name
         self.tokenizer, self.model = self._load_model(model_path)
 
     def count_tokens(self, content: str) -> int:
         result = self.tokenizer(content)
-        return len(result.input_ids[0])
+        return len(result.input_ids)
 
     def _prepapre_model_inputs(
         self,
@@ -54,7 +54,7 @@ class LLaMAModel(BaseModel):
         model_inputs = {
             "input_ids": inputs.input_ids.to(ptu.device),
             "temperature": self.temperature,
-            "max_length": self.max_tokens,
+            "max_new_tokens": self.max_new_tokens,
             **kwargs,
         }
         return model_inputs
@@ -80,8 +80,8 @@ class LLaMAModel(BaseModel):
 
         meta = {
             "latency": self.latency,
+            "tokens_prompt": model_inputs['input_ids'].shape[0],
         }
-        print(completion)
         return Result(
             text=completion,
             model_inputs=model_inputs,
@@ -90,12 +90,14 @@ class LLaMAModel(BaseModel):
         )
 
     def _load_model(self, path: str) -> (LlamaTokenizer, LlamaForCausalLM):
-        max_memory_mapping = {4: '10GB', 5: '10GB', 6: '10GB', 7: '10GB'}
-        tokenizer = LlamaTokenizer.from_pretrained(path)
+        tokenizer = LlamaTokenizer.from_pretrained(
+            path,
+            use_fast=False,
+            padding_side="left",
+        )
         model = LlamaForCausalLM.from_pretrained(
             path,
             device_map="auto",
-            # load_in_8bit=True,
-            max_memory=max_memory_mapping
+            torch_dtype=torch.float16
         )
         return tokenizer, model
