@@ -1,0 +1,27 @@
+model:
+  _target_: reLLMs.model.llama.LLaMAModel
+  ckpt_dir: CKPT_DIR
+  name: llama-7b-hf
+  temperature: 0
+  max_new_tokens: 1
+task:
+  _target_: reLLMs.task.ceval.CEvalTask
+  name: middle_school_physics
+  prompt_type: vanilla
+  few_shot: true
+logger:
+  _target_: reLLMs.logger.logger_util.setup_logger
+  exp_name: ${model.name}_${task.name}
+  seed: ${seed}
+  snapshot_mode: last
+  base_log_dir: ${path.log_dir}
+  log_tabular_only: true
+  prefix: null
+  description: null
+path:
+  root_dir: ${hydra:runtime.cwd}
+  log_dir: ${path.root_dir}/logs/
+  exp_dir: ${path.root_dir}/exps/
+no_gpu: false
+which_gpu: 0
+seed: 0
